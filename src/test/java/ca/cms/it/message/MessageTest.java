@@ -43,7 +43,7 @@ public class MessageTest {
 	@Value("${service.url}")
 	private String serviceUrl = "service-url";
 
-	// > login
+	// > login {"user":{"firstName":"Dustin","lastName":"Zhang","email":"dike.zhang@gmail.com","id":"6064bdece7c0eb6a4faa7f6b"}}
 	// > submit message (title, content, user-id, )
 	// > list submitted message 
 	@Test
@@ -56,7 +56,6 @@ public class MessageTest {
 		JSONObject request = new JSONObject();
 		request.put("title", "Quick Overview of Object Spread");
 		request.put("content", "The fundamental idea of the object spread operator is to create a new plain object using the own properties of an existing object. So {...obj} creates a new object with the same properties and values as obj. ");
-		request.put("user", userId);
 		
 		StringEntity payload = new StringEntity(request.toString());
 		JSONResponse msgResponse = restClient.post(serviceUrl + "/messages/", headers, payload);
@@ -100,6 +99,23 @@ public class MessageTest {
 		logger.debug("get message response, json={}", msgResponse.json);
 		Assertions.assertEquals(200, msgResponse.httpStatus);
 		
+	}
+	
+	@Test
+	public void send_message() throws UnsupportedEncodingException {
+		JSONResponse authResponse = authClient.login();
+		String token = restClient.getToken(authResponse);
+		List<Header> headers = restClient.getHeaders(token);
+		String userId = restClient.getUserId(authResponse);
+		// submit message
+		JSONObject request = new JSONObject();
+		request.put("title", "Quick Overview of Object Spread");
+		request.put("content", "The fundamental idea of the object spread operator is to create a new plain object using the own properties of an existing object. So {...obj} creates a new object with the same properties and values as obj. ");
+		
+		StringEntity payload = new StringEntity(request.toString());
+		JSONResponse msgResponse = restClient.post(serviceUrl + "/messages/", headers, payload);
+		logger.debug("submit message response, json={}", msgResponse.json);
+		Assertions.assertEquals(200, msgResponse.httpStatus);
 	}
 	
 }
